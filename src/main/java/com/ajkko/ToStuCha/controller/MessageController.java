@@ -6,19 +6,14 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("message")
 public class MessageController {
 
-    private int counter = 4;
+    private int counter = 0;
 
-    private List<Message> messages = new ArrayList<>() {{
-       add(Message.builder().id(1).text("the first Message").build());
-       add(Message.builder().id(2).text("the second Message").build());
-       add(Message.builder().id(3).text("the third Message").build());
-    }};
+    private List<Message> messages = new ArrayList<>();
 
     @GetMapping()
     public List<Message> getMessages() {
@@ -47,7 +42,6 @@ public class MessageController {
         messageFromDb.setText(message.getText());
         return messageFromDb;
     }
-
 
     @DeleteMapping("{id}")
     public void deleteMessage(@PathVariable long id) {
