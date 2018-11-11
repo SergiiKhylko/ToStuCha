@@ -1,4 +1,6 @@
 var messageApi = Vue.resource('/message{/id}');
+var stompClient = null;
+var messages = null;
 
 Vue.component('msg-body', {
     props: ['messages'],
@@ -45,6 +47,7 @@ Vue.component('msg-item', {
         messageApi.remove({id: this.msg.id}).then(result => {
             if (result.ok) {
                 this.messages.splice(this.messages.indexOf(this.msg), 1)
+                changeNotify();
             }
         })
     }
@@ -82,6 +85,7 @@ Vue.component('message-form', {
                         this.messages.splice(index, 1, data);
                         this.text = '';
                         this.id = ''
+                        changeNotify();
                     })
                 )
             } else {
@@ -89,9 +93,11 @@ Vue.component('message-form', {
                     result.json().then(data => {
                         this.messages.push(data);
                         this.text = ''
+                        changeNotify();
                     })
                 )
             }
+
         }
     }
 });
@@ -103,7 +109,15 @@ var app = new Vue({
   },
   template: '<msg-body :messages="messages" />',
   created: function() {
-      messageApi.get().then(result => this.messages = result.body)
+      messageApi.get().then(result => this.messages = result.body);
+      var socket = new SockJS('/gs-guide-websocket');
+      stompClient = Stomp.over(socket);
+      stompClient.connect({}, function (frame) {
+         console.log('Connected: okokokokoko');
+         stompClient.subscribe('/topic/updated', function (greeting) {
+            updateMessages();
+         });
+      });
   }
 })
 
@@ -115,4 +129,12 @@ function getIndex(list, id) {
     }
 
     return -1;
+}
+
+function changeNotify() {
+    stompClient.send("/app/hello", {}, JSON.stringify({'name': 'updated'}));
+}
+
+function updateMessages() {
+    messageApi.get().then(result => app.messages = result.body);
 }

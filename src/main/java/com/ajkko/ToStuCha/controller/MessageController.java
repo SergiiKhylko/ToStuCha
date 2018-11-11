@@ -2,6 +2,7 @@ package com.ajkko.ToStuCha.controller;
 
 import com.ajkko.ToStuCha.exception.NotFoundException;
 import com.ajkko.ToStuCha.model.Message;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
